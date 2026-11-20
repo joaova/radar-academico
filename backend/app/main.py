@@ -5,6 +5,8 @@ import logging
 import sqlite3
 from typing import Annotated
 
+import psycopg
+
 from fastapi import Depends, FastAPI, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +15,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .config import Settings
 from .database import Database
+from .postgres import PostgresDatabase
 from .errors import ApplicationError
 from .schemas import (Catalog, Credentials, FilterOptions, Filters, Opportunity, Pagination,
                       Profile, ProfileResponse, Registration, Simulation, SimulationHistory, Token, User)
@@ -27,7 +30,7 @@ FILTER_HELP = ("Utilize os filtros de país (pais), área do conhecimento (area)
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
-    database = Database(settings.database_path)
+    database = PostgresDatabase(settings.database_url) if settings.database_url else Database(settings.database_path)
     auth = AuthService(database, settings.session_hours)
     radar = RadarService(database)
 
@@ -76,10 +79,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.exception_handler(sqlite3.Error)
     async def database_error(request, error):
-        logging.getLogger(__name__).error("Falha SQLite: %s", type(error).__name__)
+        logging.getLogger(__name__).error("Falha de persistência: %s", type(error).__name__)
         return JSONResponse(status_code=503, content={
             "codigo": "persistencia_indisponivel", "mensagem": "Não foi possível acessar os dados. Tente novamente.",
         })
+
+    application.add_exception_handler(psycopg.Error, database_error)
 
     def current_user(credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)]):
         return auth.authenticate(credentials.credentials if credentials else None)

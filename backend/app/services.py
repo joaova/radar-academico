@@ -4,6 +4,8 @@ from datetime import datetime, timedelta, timezone
 import sqlite3
 from uuid import uuid4
 
+from psycopg.errors import UniqueViolation
+
 from .domain import credit_percentage, is_active, simulate
 from .errors import ApplicationError
 from .repository import Repository
@@ -33,8 +35,10 @@ class AuthService:
         try:
             with self.database.connect() as connection:
                 Repository(connection).register(user, profile)
-        except sqlite3.IntegrityError as error:
-            if "usuarios.email" not in str(error):
+        except (sqlite3.IntegrityError, UniqueViolation) as error:
+            duplicate_email = (error.diag.constraint_name == "usuarios_email_key"
+                               if isinstance(error, UniqueViolation) else "usuarios.email" in str(error))
+            if not duplicate_email:
                 raise
             raise ApplicationError(409, "email_cadastrado", "Este e-mail já está cadastrado.") from error
         return public_user(user)

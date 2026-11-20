@@ -1,6 +1,6 @@
 # Backend — Radar Acadêmico
 
-API em **Python + FastAPI + SQLite** para simular compatibilidade (UC01) e
+API em **Python + FastAPI + SQLite/PostgreSQL** para simular compatibilidade (UC01) e
 filtrar oportunidades (UC02). Inclui cadastro, login, perfil individual,
 referências documentais e histórico de simulações.
 
@@ -122,6 +122,8 @@ e edital; editar dados não modifica simulações passadas.
 
 | Variável | Padrão | Efeito |
 | --- | --- | --- |
+| DATABASE_URL | não definida | URL PostgreSQL 18+; tem prioridade sobre RADAR_DATABASE. Use a URL do Neon com TLS na publicação |
+| RADAR_REQUIRE_POSTGRES | 0 | Use 1 no Render para impedir uso acidental de SQLite temporário se DATABASE_URL estiver ausente |
 | RADAR_DATABASE | backend/data/radar.sqlite3 | Caminho do banco; relativo à execução quando não absoluto |
 | RADAR_SEED | 1 | Use 0 para banco vazio sem exemplos |
 | RADAR_CORS_ORIGINS | http://127.0.0.1:8000,http://localhost:8000 | Origens autorizadas, separadas por vírgula |
@@ -132,6 +134,13 @@ com 600.000 iterações e salt individual. Somente o hash dos tokens fica no
 banco. Arquivos SQLite e `.venv` são ignorados pelo Git. Recuperação de senha,
 confirmação de e-mail e administração de editais ficam fora do recorte acadêmico.
 
+Na publicação gratuita, o banco fica no Neon e a aplicação roda no Render,
+conforme o [guia de publicação](../README.md#publicar-no-render). PostgreSQL
+usa transações, chaves estrangeiras e validação de JSON. O schema é compartilhado
+com SQLite; a normalização Unicode dos filtros é reproduzida no servidor SQL
+sem instalar extensões. As credenciais ficam somente em `DATABASE_URL` no
+ambiente do serviço. A aplicação não lê arquivos `.env` automaticamente.
+
 ## Testes
 
 ```bash
@@ -139,6 +148,12 @@ source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
+
+Para executar também o contrato HTTP e as verificações de persistência em
+PostgreSQL 18+, defina `RADAR_TEST_POSTGRES_URL` com a URL de um banco exclusivo
+para testes antes do mesmo comando. Cada teste cria um schema isolado, que é
+removido ao final; não use um banco de produção. Sem essa variável, esses testes
+ficam explicitamente ignorados e os testes locais continuam usando SQLite.
 
 Testes de domínio, validação, serviços, SQLite real temporário e HTTP com
 TestClient (sem abrir portas). O RNF01 mede a execução da simulação em até 3 s

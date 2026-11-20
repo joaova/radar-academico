@@ -87,8 +87,8 @@ class Repository:
             values.append(term)
         where = " AND ".join(clauses)
         total = self.connection.execute(
-            f"SELECT count(*) FROM oportunidades WHERE {where}", values,
-        ).fetchone()[0]
+            f"SELECT count(*) AS total FROM oportunidades WHERE {where}", values,
+        ).fetchone()["total"]
         rows = self.connection.execute(
             f"SELECT * FROM oportunidades WHERE {where} ORDER BY id LIMIT ? OFFSET ?",
             (*values, filters.get("limite", 20), filters.get("offset", 0)),
@@ -112,7 +112,8 @@ class Repository:
         self.connection.execute(
             f"INSERT INTO oportunidades({','.join(columns)},requisitos) "
             f"VALUES({','.join('?' for _ in range(len(columns) + 1))})",
-            (*[opportunity[c] for c in columns], dump(opportunity["requisitos"])),
+            (*[int(opportunity[c]) if c == "ativa" else opportunity[c] for c in columns],
+             dump(opportunity["requisitos"])),
         )
 
     def save_simulation(self, identifier, user_id, opportunity_id, now, result, profile, opportunity):
@@ -129,8 +130,8 @@ class Repository:
 
     def history(self, user_id, limit=20, offset=0):
         total = self.connection.execute(
-            "SELECT count(*) FROM simulacoes WHERE usuario_id = ?", (user_id,),
-        ).fetchone()[0]
+            "SELECT count(*) AS total FROM simulacoes WHERE usuario_id = ?", (user_id,),
+        ).fetchone()["total"]
         rows = self.connection.execute(
             "SELECT * FROM simulacoes WHERE usuario_id = ? ORDER BY criado_em DESC, id LIMIT ? OFFSET ?",
             (user_id, limit, offset),

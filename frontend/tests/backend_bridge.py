@@ -19,7 +19,8 @@ def select_limitado(self, timeout=None):
 selectors.DefaultSelector.select = select_limitado
 
 with TemporaryDirectory() as temp:
-    with TestClient(create_app(Settings(database_path=Path(temp) / 'teste.sqlite3'))) as client:
+    with TestClient(create_app(Settings(database_path=Path(temp) / 'teste.sqlite3',
+                                       database_url=None, require_postgres=False))) as client:
         print(json.dumps({'ready': True}), flush=True)
         for linha in sys.stdin:
             pedido = json.loads(linha)

@@ -49,13 +49,20 @@ Python, com verificação de saúde em `/api/saude`. O servidor integrado fornec
 `config.js` usando a origem do navegador; não é necessário configurar CORS nem
 alterar o endereço da API para a publicação.
 
-O plano `0.5c-512mb` e o disco persistente de 1 GB têm custo estimado de
-US$ 7,25/mês (US$ 7 pelo serviço e US$ 0,25 pelo disco, antes de impostos e
-eventuais excedentes; confira os [preços do Render](https://render.com/pricing)).
-O SQLite fica em `/var/data/radar.sqlite3` e sobrevive a deploys e reinícios.
-O serviço roda uma única instância, com breve indisponibilidade nos deploys
-por usar disco. A publicação inicia um banco novo com os editais fictícios;
-os dados do banco local não são transferidos automaticamente.
+O serviço usa o plano gratuito do Render, sem disco, e um banco PostgreSQL
+18 ou superior no plano gratuito do Neon. Configure `DATABASE_URL` no
+ambiente do serviço com a URL fornecida pelo Neon, incluindo as opções TLS.
+A URL contém credenciais e não deve ser incluída no Git nem no frontend.
+`RADAR_REQUIRE_POSTGRES=1` impede que a publicação use SQLite temporário
+quando faltar a conexão. O schema e os editais fictícios são inicializados
+automaticamente; os dados do banco SQLite local não são transferidos.
+
+Os dados no Neon sobrevivem aos deploys e reinícios da aplicação. A gratuidade
+depende dos limites de uso de cada provedor: confira os
+[limites do Render](https://render.com/docs/free) e o [plano Neon](https://neon.com/pricing).
+O Render suspende o serviço após 15 minutos sem acesso e o primeiro acesso
+seguinte pode demorar cerca de um minuto. O PostgreSQL gratuito do próprio
+Render expira em 30 dias; o plano gratuito do Neon não é um teste com esse prazo.
 
 Para executar o mesmo servidor integrado localmente, na raiz do projeto:
 
@@ -64,7 +71,8 @@ backend/.venv/bin/python -m uvicorn app.web:app --app-dir backend --host 127.0.0
 ```
 
 Abra `http://127.0.0.1:8000/`. O modo com dois servidores descrito acima
-continua disponível.
+continua disponível. Sem `DATABASE_URL`, o desenvolvimento local continua
+usando SQLite. Com a variável definida, usa PostgreSQL.
 
 ### Usar dois servidores
 

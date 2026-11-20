@@ -18,11 +18,14 @@ from tests.helpers import complete_profile
 
 
 class ApiTests(unittest.TestCase):
+    def app_settings(self, path):
+        return Settings(database_path=path, database_url=None, require_postgres=False)
+
     def setUp(self):
         directory = TemporaryDirectory()
         self.addCleanup(directory.cleanup)
-        self.client = self.enterContext(TestClient(create_app(Settings(
-            database_path=Path(directory.name) / "http.sqlite3",
+        self.client = self.enterContext(TestClient(create_app(self.app_settings(
+            Path(directory.name) / "http.sqlite3",
         ))))
         self.user = self.client.post("/api/auth/cadastro", json={
             "nome": "Aluno", "email": "aluno@example.com", "senha": "senha-segura",

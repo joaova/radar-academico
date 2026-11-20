@@ -15,7 +15,7 @@ class WebTests(unittest.TestCase):
         directory = TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         self.client = self.enterContext(TestClient(create_web_app(Settings(
-            database_path=Path(directory.name) / "web.sqlite3",
+            database_path=Path(directory.name) / "web.sqlite3", database_url=None, require_postgres=False,
         ))))
 
     def test_pages_and_assets_are_served(self):

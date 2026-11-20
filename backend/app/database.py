@@ -56,7 +56,6 @@ CREATE TABLE IF NOT EXISTS simulacoes (
 );
 CREATE INDEX IF NOT EXISTS idx_simulacoes_usuario
     ON simulacoes(usuario_id, criado_em DESC, id);
-PRAGMA user_version = 1;
 """
 
 
@@ -84,4 +83,5 @@ class Database:
                 raise RuntimeError(f"Versão SQLite não suportada: {version}")
             connection.execute("PRAGMA journal_mode = WAL")
             connection.executescript(SCHEMA)
+            connection.execute("PRAGMA user_version = 1")
 
