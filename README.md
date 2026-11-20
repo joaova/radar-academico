@@ -42,6 +42,32 @@ Os cards convidam a simular, sem calcular percentuais no navegador nem criar sim
 
 ## Configuração da conexão
 
+### Publicar no Render
+
+O [render.yaml](render.yaml) publica a interface e a API em um único serviço
+Python, com verificação de saúde em `/api/saude`. O servidor integrado fornece
+`config.js` usando a origem do navegador; não é necessário configurar CORS nem
+alterar o endereço da API para a publicação.
+
+O plano `0.5c-512mb` e o disco persistente de 1 GB têm custo estimado de
+US$ 7,25/mês (US$ 7 pelo serviço e US$ 0,25 pelo disco, antes de impostos e
+eventuais excedentes; confira os [preços do Render](https://render.com/pricing)).
+O SQLite fica em `/var/data/radar.sqlite3` e sobrevive a deploys e reinícios.
+O serviço roda uma única instância, com breve indisponibilidade nos deploys
+por usar disco. A publicação inicia um banco novo com os editais fictícios;
+os dados do banco local não são transferidos automaticamente.
+
+Para executar o mesmo servidor integrado localmente, na raiz do projeto:
+
+```bash
+backend/.venv/bin/python -m uvicorn app.web:app --app-dir backend --host 127.0.0.1 --port 8000
+```
+
+Abra `http://127.0.0.1:8000/`. O modo com dois servidores descrito acima
+continua disponível.
+
+### Usar dois servidores
+
 O endereço da API está em [frontend/config.js](frontend/config.js), por padrão `http://127.0.0.1:8001`. Altere se executar o backend em outro endereço.
 
 O backend já permite as origens `http://127.0.0.1:8000` e `http://localhost:8000` via CORS. Se mudar a porta/origem da interface, configure `RADAR_CORS_ORIGINS` antes de iniciar a API. Por exemplo, para servir a interface na porta 8002:

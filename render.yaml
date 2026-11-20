@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: radar-academico
+    runtime: python
+    plan: 0.5c-512mb
+    region: virginia
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python -m uvicorn app.web:app --app-dir backend --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/saude
+    autoDeployTrigger: commit
+    envVars:
+      - key: RADAR_DATABASE
+        value: /var/data/radar.sqlite3
+      - key: RADAR_SEED
+        value: "1"
+    disk:
+      name: radar-data
+      mountPath: /var/data
+      sizeGB: 1
