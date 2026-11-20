@@ -1,0 +1,14 @@
+{
+  "nome": "Beatriz Lima",
+  "curso": "Engenharia de Software",
+  "area": "Engenharia e Tecnologia",
+  "nivel": "graduação",
+  "i3": 8.4,
+  "creditos": 58,
+  "creditos_concluidos": null,
+  "creditos_totais": null,
+  "idiomas": {"Inglês": "B2", "Espanhol": "B1", "Português": "C2"},
+  "experiencias": [],
+  "disciplinas": [],
+  "documentos": {"historico_escolar": "historico-escolar-exemplo.pdf"}
+}

@@ -1,0 +1,350 @@
+[
+  {
+    "id": "milano",
+    "universidade": "Politecnico di Milano",
+    "titulo": "Engenharia e Computação",
+    "cidade": "Milão",
+    "pais": "Itália",
+    "area": "Engenharia e Tecnologia",
+    "meses": 6,
+    "nivel": "graduação",
+    "idioma": "Inglês",
+    "proficiencia": "B2",
+    "bolsa": "Auxílio mensal",
+    "beneficio": "€ 850/mês",
+    "vagas": 4,
+    "ativa": true,
+    "requisitos": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível acadêmico",
+        "esperado": "graduação",
+        "obrigatorio": true
+      },
+      {
+        "campo": "i3",
+        "rotulo": "I3 mínimo",
+        "esperado": 7,
+        "obrigatorio": true
+      },
+      {
+        "campo": "creditos",
+        "rotulo": "Créditos integralizados",
+        "esperado": 40,
+        "obrigatorio": true
+      },
+      {
+        "campo": "idioma",
+        "rotulo": "Proficiência em Inglês",
+        "esperado": "B2",
+        "obrigatorio": true,
+        "peso": 80
+      },
+      {
+        "campo": "experiencia",
+        "rotulo": "Experiência na área do edital",
+        "esperado": "Sim",
+        "peso": 20,
+        "obrigatorio": false
+      },
+      {
+        "campo": "documento",
+        "chave": "historico_escolar",
+        "rotulo": "Histórico escolar",
+        "esperado": "Presente",
+        "obrigatorio": true,
+        "peso": 0
+      }
+    ]
+  },
+  {
+    "id": "munique",
+    "universidade": "TU Munich",
+    "titulo": "Data & AI Mobility Track",
+    "cidade": "Munique",
+    "pais": "Alemanha",
+    "area": "Ciências Exatas e Computação",
+    "meses": 12,
+    "nivel": "pós-graduação",
+    "idioma": "Inglês",
+    "proficiencia": "C1",
+    "bolsa": "Bolsa integral",
+    "beneficio": "Bolsa DAAD",
+    "vagas": 5,
+    "ativa": true,
+    "requisitos": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível acadêmico",
+        "esperado": "pós-graduação",
+        "obrigatorio": true
+      },
+      {
+        "campo": "i3",
+        "rotulo": "I3 mínimo",
+        "esperado": 8,
+        "obrigatorio": true
+      },
+      {
+        "campo": "creditos",
+        "rotulo": "Créditos integralizados",
+        "esperado": 50,
+        "obrigatorio": true
+      },
+      {
+        "campo": "idioma",
+        "rotulo": "Proficiência em Inglês",
+        "esperado": "C1",
+        "obrigatorio": true,
+        "peso": 80
+      },
+      {
+        "campo": "experiencia",
+        "rotulo": "Experiência na área do edital",
+        "esperado": "Sim",
+        "peso": 20,
+        "obrigatorio": false
+      },
+      {
+        "campo": "documento",
+        "chave": "historico_escolar",
+        "rotulo": "Histórico escolar",
+        "esperado": "Presente",
+        "obrigatorio": true,
+        "peso": 0
+      }
+    ]
+  },
+  {
+    "id": "salamanca",
+    "universidade": "Universidade de Salamanca",
+    "titulo": "Gestão Global & Finanças",
+    "cidade": "Salamanca",
+    "pais": "Espanha",
+    "area": "Negócios, Gestão e Finanças",
+    "meses": 6,
+    "nivel": "graduação",
+    "idioma": "Espanhol",
+    "proficiencia": "B1",
+    "bolsa": "Auxílio mensal",
+    "beneficio": "€ 600/mês",
+    "vagas": 6,
+    "ativa": true,
+    "requisitos": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível acadêmico",
+        "esperado": "graduação",
+        "obrigatorio": true
+      },
+      {
+        "campo": "i3",
+        "rotulo": "I3 mínimo",
+        "esperado": 7,
+        "obrigatorio": true
+      },
+      {
+        "campo": "creditos",
+        "rotulo": "Créditos integralizados",
+        "esperado": 40,
+        "obrigatorio": true
+      },
+      {
+        "campo": "idioma",
+        "rotulo": "Proficiência em Espanhol",
+        "esperado": "B1",
+        "obrigatorio": true,
+        "peso": 80
+      },
+      {
+        "campo": "experiencia",
+        "rotulo": "Experiência na área do edital",
+        "esperado": "Sim",
+        "peso": 20,
+        "obrigatorio": false
+      },
+      {
+        "campo": "documento",
+        "chave": "historico_escolar",
+        "rotulo": "Histórico escolar",
+        "esperado": "Presente",
+        "obrigatorio": true,
+        "peso": 0
+      }
+    ]
+  },
+  {
+    "id": "paris",
+    "universidade": "Sciences Po",
+    "titulo": "Relações Internacionais",
+    "cidade": "Paris",
+    "pais": "França",
+    "area": "Ciências Sociais e Relações Internacionais",
+    "meses": 6,
+    "nivel": "graduação",
+    "idioma": "Francês",
+    "proficiencia": "B2",
+    "bolsa": "Bolsa integral",
+    "beneficio": "Bolsa Eiffel",
+    "vagas": 4,
+    "ativa": true,
+    "requisitos": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível acadêmico",
+        "esperado": "graduação",
+        "obrigatorio": true
+      },
+      {
+        "campo": "i3",
+        "rotulo": "I3 mínimo",
+        "esperado": 7.5,
+        "obrigatorio": true
+      },
+      {
+        "campo": "creditos",
+        "rotulo": "Créditos integralizados",
+        "esperado": 40,
+        "obrigatorio": true
+      },
+      {
+        "campo": "idioma",
+        "rotulo": "Proficiência em Francês",
+        "esperado": "B2",
+        "obrigatorio": true,
+        "peso": 80
+      },
+      {
+        "campo": "experiencia",
+        "rotulo": "Experiência na área do edital",
+        "esperado": "Sim",
+        "peso": 20,
+        "obrigatorio": false
+      },
+      {
+        "campo": "documento",
+        "chave": "historico_escolar",
+        "rotulo": "Histórico escolar",
+        "esperado": "Presente",
+        "obrigatorio": true,
+        "peso": 0
+      }
+    ]
+  },
+  {
+    "id": "estocolmo",
+    "universidade": "KTH Royal Institute",
+    "titulo": "Sustentabilidade & Energia",
+    "cidade": "Estocolmo",
+    "pais": "Suécia",
+    "area": "Engenharia e Tecnologia",
+    "meses": 6,
+    "nivel": "graduação",
+    "idioma": "Inglês",
+    "proficiencia": "B2",
+    "bolsa": "Auxílio mensal",
+    "beneficio": "€ 1.100/mês",
+    "vagas": 4,
+    "ativa": true,
+    "requisitos": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível acadêmico",
+        "esperado": "graduação",
+        "obrigatorio": true
+      },
+      {
+        "campo": "i3",
+        "rotulo": "I3 mínimo",
+        "esperado": 8.5,
+        "obrigatorio": true
+      },
+      {
+        "campo": "creditos",
+        "rotulo": "Créditos integralizados",
+        "esperado": 50,
+        "obrigatorio": true
+      },
+      {
+        "campo": "idioma",
+        "rotulo": "Proficiência em Inglês",
+        "esperado": "B2",
+        "obrigatorio": true,
+        "peso": 80
+      },
+      {
+        "campo": "experiencia",
+        "rotulo": "Experiência na área do edital",
+        "esperado": "Sim",
+        "peso": 20,
+        "obrigatorio": false
+      },
+      {
+        "campo": "documento",
+        "chave": "historico_escolar",
+        "rotulo": "Histórico escolar",
+        "esperado": "Presente",
+        "obrigatorio": true,
+        "peso": 0
+      }
+    ]
+  },
+  {
+    "id": "coimbra",
+    "universidade": "Universidade de Coimbra",
+    "titulo": "Inovação & Bioeconomia",
+    "cidade": "Coimbra",
+    "pais": "Portugal",
+    "area": "Saúde e Bioeconomia",
+    "meses": 12,
+    "nivel": "pós-graduação",
+    "idioma": "Português",
+    "proficiencia": "B2",
+    "bolsa": "Bolsa integral",
+    "beneficio": "Bolsa Santander",
+    "vagas": 5,
+    "ativa": true,
+    "requisitos": [
+      {
+        "campo": "nivel",
+        "rotulo": "Nível acadêmico",
+        "esperado": "pós-graduação",
+        "obrigatorio": true
+      },
+      {
+        "campo": "i3",
+        "rotulo": "I3 mínimo",
+        "esperado": 7,
+        "obrigatorio": true
+      },
+      {
+        "campo": "creditos",
+        "rotulo": "Créditos integralizados",
+        "esperado": 40,
+        "obrigatorio": true
+      },
+      {
+        "campo": "idioma",
+        "rotulo": "Proficiência em Português",
+        "esperado": "B2",
+        "obrigatorio": true,
+        "peso": 80
+      },
+      {
+        "campo": "experiencia",
+        "rotulo": "Experiência na área do edital",
+        "esperado": "Sim",
+        "peso": 20,
+        "obrigatorio": false
+      },
+      {
+        "campo": "documento",
+        "chave": "historico_escolar",
+        "rotulo": "Histórico escolar",
+        "esperado": "Presente",
+        "obrigatorio": true,
+        "peso": 0
+      }
+    ]
+  }
+]

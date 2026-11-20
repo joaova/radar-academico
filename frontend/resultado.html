@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link rel="stylesheet" href="stitch.css"><link rel="stylesheet" href="radar.css"><title>Resultado da simulação | Radar Acadêmico</title></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between" data-page="resultado"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><header class="radar-header"><div class="radar-header-conteudo">
+<a href="index.html" data-catalogo class="radar-marca"><span aria-hidden="true">◎</span> Radar Acadêmico</a>
+<nav aria-label="Navegação principal" class="radar-navegacao"><a href="index.html" data-catalogo>Explorar vagas</a><a href="historico.html">Simulações</a></nav>
+<div class="radar-conta"><span data-slot="nomePerfil" class="radar-nome"></span><a data-perfil href="perfil.html">Perfil</a><button id="sair" type="button">Sair</button></div>
+</div></header><p id="estado-pagina" class="radar-status-pagina" role="status">Carregando…</p><main hidden class="w-full pt-20 bg-surface flex-grow"><div class="flex flex-col w-full">
+<!-- Subtle ambient backdrop light spots -->
+<div class="relative w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-space-lg flex flex-col gap-space-xl">
+<!-- Top Decorative Blur Gradient (Contained) -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-72 bg-gradient-to-b from-primary-fixed/30 via-tertiary-fixed/10 to-transparent blur-3xl pointer-events-none -z-10 rounded-full"></div>
+<!-- 1. BREADCRUMB & HEADER CONTEXT -->
+<section class="flex flex-col md:flex-row md:items-center justify-between gap-space-md"><div class="flex items-center"><a href="index.html" class="flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200 font-label-md text-label-md shadow-sm border border-surface-container-high/30 cursor-pointer" data-detalhes=""><span class="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_back</span><span class="font-medium">Voltar</span></a></div></section>
+<!-- 2. DASHBOARD DE RESULTADO CENTRAL (HIGH-VISIBILITY SCORE & METRICS) -->
+<section class="w-full rounded-2xl p-space-xl relative overflow-hidden shadow-lg border border-white/20 bg-gradient-to-r from-[#0284c7] to-[#0369a1]">
+  <!-- Glowing ambient backdrop accents -->
+  <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
+  <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-tertiary-fixed/20 blur-3xl pointer-events-none"></div>
+
+  <div class="relative z-10 flex flex-col items-center text-center gap-space-lg w-full max-w-4xl mx-auto">
+    <!-- University Header Identity Anchor -->
+    <div class="flex flex-col sm:flex-row items-center gap-space-md justify-center">
+      <div class="w-20 h-20 rounded-2xl bg-surface-container-lowest p-2 shadow-md border border-white/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary" aria-hidden="true">school</span>
+      </div>
+      <div class="flex flex-col sm:text-left text-center">
+        <h1 class="text-white font-extrabold tracking-tight text-[28px] md:text-[34px] leading-tight" data-slot="universidade">Politecnico di Milano</h1>
+        <span class="text-[16px] md:text-[18px] text-white/90 font-medium flex items-center justify-center sm:justify-start gap-1.5 mt-1" data-slot="local">
+          <span class="material-symbols-outlined text-[20px] text-secondary-fixed" aria-hidden="true">location_on</span>
+          Milão, Itália • Escola de Engenharia &amp; Design
+        </span>
+      </div>
+    </div>
+
+    <!-- University Tags -->
+    <div class="flex flex-wrap gap-2.5 justify-center"><span data-slot="titulo" class="text-white/90"></span></div>
+
+    <!-- Prominent, Centered, Large Radial Compatibility Gauge Chart -->
+    <div class="flex flex-col items-center justify-center my-space-xs relative"><div class="radar-medidor" id="medidor"><strong id="indice" class="text-white text-[40px]">—</strong><span class="text-white/90 text-sm">Compatibilidade</span></div><p data-slot="estado" class="mt-space-md text-white font-bold text-title-md" role="status"></p><p id="elegibilidade" class="mt-space-xs text-white/90"></p></div>
+  </div>
+</section>
+<p id="data-simulacao" class="text-on-surface-variant"></p><button id="simular-novamente" class="radar-botao" type="button">Simular novamente com meu perfil atual</button><p id="erro-simulacao" role="alert" class="text-error" hidden></p>
+<!-- 3. CHECKLIST DE REQUISITOS EM 2 COLUNAS VISUAIS -->
+<section class="w-full flex flex-col gap-space-md"><div class="flex flex-wrap items-center justify-between gap-space-sm"><h2 class="text-headline-sm font-bold">Avaliação por critério</h2><a href="perfil.html" data-perfil class="rounded-full bg-primary-fixed text-primary px-space-md py-space-xs font-bold">Completar perfil</a></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg"><section class="rounded-2xl bg-surface-container-low p-space-lg"><h3 class="text-title-md text-tertiary font-bold mb-space-md">Critérios atendidos</h3><ul id="atendidos" class="grid gap-space-sm"></ul></section><section class="rounded-2xl bg-secondary-fixed/20 p-space-lg"><h3 class="text-title-md text-secondary font-bold mb-space-md">Pendências e critérios não atendidos</h3><ul id="pendencias" class="grid gap-space-sm"></ul></section></div><p class="text-body-sm text-on-surface-variant">O resultado preserva o perfil e o edital usados no momento da simulação. O índice mede aderência aos critérios e não a probabilidade de aprovação.</p></section>
+<!-- 4. RODAPÉ DO RESULTADO E AÇÕES DE DECISÃO -->
+
+</div>
+</div></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_12px_rgba(11,28,48,0.02)] mt-space-2xl"><div class="max-w-[1440px] mx-auto px-margin-desktop py-space-xl flex flex-col md:flex-row items-center justify-between gap-gutter"><div class="flex flex-col sm:flex-row items-center gap-space-md text-center sm:text-left"><a href="index.html" class="flex items-center gap-space-xs hover:opacity-90 transition-opacity" data-catalogo=""><div class="h-6 w-6 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"></path><path d="M12 6a6 6 0 1 0 6 6"></path><path d="M12 10a2 2 0 1 0 2 2"></path><path d="M12 2v10l7-7"></path></svg></div><span class="font-label-md text-label-md text-primary font-bold">Radar Acadêmico</span></a><span class="hidden sm:inline text-outline-variant font-body-sm text-body-sm">•</span><span class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Portal de Mobilidade Acadêmica Internacional.</span></div><div class="flex flex-wrap items-center justify-center gap-space-lg"></div></div></footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="module" src="app.js"></script><noscript><p class="radar-noscript">Ative o JavaScript para usar o Radar Acadêmico.</p></noscript></body></html>

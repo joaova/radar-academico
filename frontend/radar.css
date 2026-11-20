@@ -1,0 +1,86 @@
+[hidden] { display: none !important; }
+
+.radar-campo {
+  display: block;
+  width: 100%;
+  padding: .6rem .75rem;
+  margin-top: .35rem;
+  border: 1px solid #bfc7d2;
+  border-radius: .75rem;
+  background-color: #fff;
+  color: #0b1c30;
+}
+
+.radar-filtro-panel {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + .4rem);
+  left: var(--radar-painel-esquerda, 0);
+  width: min(18rem, calc(100vw - 2rem));
+}
+
+.material-symbols-outlined {
+  display: inline-block;
+  max-inline-size: 1.25em;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.radar-estado { color: #006947; }
+.radar-estado[data-tom="alerta"] { color: #805501; }
+.radar-estado[data-tom="erro"] { color: #ba1a1a; }
+.radar-indice { text-align: center; margin-left: .5rem; }
+.radar-banner { background: linear-gradient(140deg, #006194, #d3e4fe); }
+
+.radar-medidor {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  width: 10rem;
+  height: 10rem;
+  border: .45rem solid #ffffffa6;
+  border-radius: 50%;
+  background: #ffffff14;
+}
+
+.radar-noscript {
+  position: fixed;
+  bottom: 0;
+  inset-inline: 0;
+  padding: 1rem;
+  color: #ffffff;
+  background: #0b1c30;
+  z-index: 100;
+  text-align: center;
+}
+
+.radar-header { position: fixed; inset: 0 0 auto; z-index: 60; background: #ffffffed; backdrop-filter: blur(16px); box-shadow: 0 1px 12px #0b1c300a; }
+.radar-header-conteudo { min-height: 5rem; max-width: 1440px; margin: auto; padding: .65rem clamp(1rem, 4vw, 4rem); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.radar-marca { color: #006194; font-size: 1.15rem; font-weight: 800; margin-right: auto; }
+.radar-marca span { font-size: 1.5rem; }
+.radar-navegacao, .radar-conta { display: flex; align-items: center; gap: 1rem; font-size: .9rem; }
+.radar-conta a, .radar-conta button, .radar-navegacao a { color: #006194; font-weight: 700; }
+.radar-conta button { cursor: pointer; }
+.radar-status-pagina { margin: 7rem auto 2rem; max-width: 960px; padding: 1.5rem; }
+.radar-status-pagina a { color: #006194; text-decoration: underline; }
+.radar-conteudo { max-width: 960px; margin: auto; padding: 2rem 1rem; }
+.radar-autenticacao { max-width: 30rem; margin: auto; }
+.radar-botao { display: inline-block; background: #006194; color: white; border-radius: 2rem; padding: .6rem 1.2rem; font-weight: 700; cursor: pointer; }
+.radar-paginacao { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0; }
+button:disabled, [aria-disabled="true"] { opacity: .55; cursor: wait; }
+button:disabled { cursor: default; }
+input:disabled, textarea:disabled { background: #eef1f5; }
+textarea.radar-campo { resize: vertical; }
+#erro-catalogo, #erro-historico { padding: 1rem 0; color: #ba1a1a; }
+#erro-catalogo button, #erro-historico button { margin-top: .75rem; }
+@media (max-width: 760px) {
+  .radar-nome { display: none; }
+  .radar-navegacao { order: 3; width: 100%; justify-content: center; font-size: .8rem; }
+  .radar-header-conteudo { gap: .5rem; }
+  .radar-conta { gap: .75rem; }
+}
+
+@media (max-width: 760px) { main.pt-20 { padding-top: 7rem; } }
+.radar-nome { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 761px) and (max-width: 1000px) { .radar-nome { display: none; } }
+@media (max-width: 560px) { .radar-marca { font-size: 1rem; } .radar-conta { font-size: .8rem; } }

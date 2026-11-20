@@ -1,0 +1,59 @@
+@base = http://127.0.0.1:8001
+@token = COLE_O_ACCESS_TOKEN_AQUI
+
+### 1. Cadastro
+POST {{base}}/api/auth/cadastro
+Content-Type: application/json
+
+{"nome":"Beatriz Lima","email":"beatriz@example.com","senha":"senha-de-exemplo-123"}
+
+### 2. Login; copie access_token para a variável token acima
+POST {{base}}/api/auth/login
+Content-Type: application/json
+
+{"email":"beatriz@example.com","senha":"senha-de-exemplo-123"}
+
+### 3. UC02 — filtros simultâneos; resultado: Milão
+GET {{base}}/api/oportunidades?pais=It%C3%A1lia&idioma=Ingl%C3%AAs&nivel=gradua%C3%A7%C3%A3o&min=6&max=6
+Authorization: Bearer {{token}}
+
+### 4. UC02 — busca vazia com orientação
+GET {{base}}/api/oportunidades?pais=Jap%C3%A3o&idioma=Espanhol
+Authorization: Bearer {{token}}
+
+### 5. UC02 — parâmetro não suportado; HTTP 422
+GET {{base}}/api/oportunidades?orientador=Fulano
+Authorization: Bearer {{token}}
+
+### 6. UC01 — primeira execução; perfil incompleto
+POST {{base}}/api/oportunidades/milano/simulacoes
+Authorization: Bearer {{token}}
+
+### 7. Completar perfil
+PUT {{base}}/api/perfil
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Beatriz Lima",
+  "nivel": "graduação",
+  "i3": 8.4,
+  "creditos": 58,
+  "idiomas": {"Inglês": "B2"},
+  "experiencias": [],
+  "disciplinas": [],
+  "documentos": {"historico_escolar": "historico-escolar-exemplo.pdf"}
+}
+
+### 8. UC01 — compatível, com índice 80 e candidatura habilitada
+POST {{base}}/api/oportunidades/milano/simulacoes
+Authorization: Bearer {{token}}
+
+### 9. Histórico — mantém os dois resultados
+GET {{base}}/api/simulacoes
+Authorization: Bearer {{token}}
+
+### 10. Encerrar sessão
+POST {{base}}/api/auth/logout
+Authorization: Bearer {{token}}
+

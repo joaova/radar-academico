@@ -1,0 +1,232 @@
+RELATO DO USO DE SPEC-DRIVEN DEVELOPMENT (SDD)
+Projeto: Radar Acadêmico — backend Python, FastAPI e SQLite
+Data: 20/11/2026
+
+1. FONTES E ABORDAGEM
+
+Foram lidos os dois enunciados fornecidos e o planejamento:
+- Enunciado_TPratico_Engenharia_Software_GenAI_MVP.docx - Google Docs.pdf;
+- Versão_Enunciado_TPratico_Engenharia_Software_GenAI_MVP.docx - Google Docs.pdf
+  (identificado internamente como versão 3);
+- Trabalho Pratico Eng Soft pt1.pdf.
+
+O texto foi extraído com pdftotext. Os cinco diagramas UML do planejamento
+(casos de uso, atividades, classes, sequência e pacotes) foram também
+renderizados e examinados visualmente. O frontend foi consultado para
+preservar terminologia, dados de demonstração e pesos dos exemplos.
+
+O fluxo adotado foi Specify, Clarify, Plan, Tasks, Implement e Analyze/Converge.
+Foi aplicado às DUAS funcionalidades solicitadas: UC01, simular compatibilidade;
+UC02, filtrar oportunidades. As especificações iniciais de ambas foram escritas
+ANTES dos módulos de implementação e refinadas com as respostas do usuário.
+Não foi utilizado um framework externo como Spec Kit. A abordagem utiliza
+arquivos revisáveis no repositório como referência comum de comportamento.
+
+Artefatos:
+- specs/01-simulador.md: regras SIM01–SIM10, alternativas e limites de UC01;
+- specs/02-filtros.md: regras FIL01–FIL10, alternativas e limites de UC02;
+- specs/03-autenticacao.md: regras de suporte AUT01–AUT07;
+- specs/plano-e-rastreabilidade.md: arquitetura, tarefas e matriz que liga
+  critérios do trabalho, regras, implementação e testes;
+- app/: implementação; tests/: verificação; examples/: demonstração;
+- README.md: instalação, execução, contratos e limitações;
+- este arquivo: registro do processo e da evidência efetivamente obtida.
+
+2. SPECIFY: DO PLANEJAMENTO PARA REGRAS VERIFICÁVEIS
+
+UC01 — Simulador
+
+A US1, CA01–CA04 e UC01 foram traduzidos para regras distintas de presença,
+comparação, pontuação e elegibilidade:
+- requisito obrigatório conhecido e insuficiente: incompatível, candidatura
+  bloqueada e justificativa com exigência e valor do perfil;
+- informação/documento obrigatório ausente: incompleta, candidatura bloqueada,
+  índice nulo e orientação para completar o perfil;
+- critério adicional: influencia pontuação, sem eliminar o candidato;
+- índice: 100 × soma dos pesos atendidos / soma dos pesos cadastrados;
+- mínimos de I3, créditos e idioma: inclusivos;
+- resultado registrado com cópias do perfil e edital efetivamente avaliados;
+- perfil atualizado permite nova simulação, sem alterar resultados antigos.
+
+O índice representa aderência às regras, não probabilidade de aprovação.
+Exemplo: proficiência com peso 80 e experiência com peso 20. Um aluno que
+cumpre todos os obrigatórios e não tem experiência fica elegível com 80%.
+
+UC02 — Filtro
+
+A US2, CA05–CA07 e UC02 foram traduzidos para:
+- combinação por AND de área, duração, idioma, país, bolsa e nível;
+- duração em meses com mínimo/máximo inclusivos;
+- limpeza dos filtros restaurando o catálogo ativo;
+- lista vazia com orientação quando não há correspondência;
+- rejeição de atributo não suportado, como orientador, com mensagem de uso;
+- exclusão de editais inativos ou vencidos;
+- paginação estável com total anterior à paginação;
+- busca complementar limitada a universidade, título e cidade, preservando
+  a funcionalidade já existente no frontend.
+
+3. CLARIFY: DECISÕES HUMANAS E AMBIGUIDADES
+
+O usuário foi consultado antes da implementação das partes dependentes.
+Respostas expressamente confirmadas:
+- "Implementar cadastro e login também";
+- "Manter os pesos do frontend";
+- "Sim, dados e referências são suficientes" para históricos/documentos.
+
+Consequências: inclusão de autenticação e dados individuais; pesos 80/20 nos
+editais de exemplo; documentos por referência sem upload ou leitura de PDF.
+
+Decisões adicionais registradas:
+
+a) RF03 conflita com CA01 e a pós-condição de UC01: menciona bloquear apenas
+por dados ausentes. Foi seguida a interpretação coerente com CA01, caso de
+uso e diagrama de atividades: ausência obrigatória E requisito obrigatório
+insuficiente bloqueiam, com estados e explicações diferentes.
+
+b) Se houver simultaneamente ausências e reprovações obrigatórias, a situação
+geral é incompleta. Ambas continuam discriminadas no relatório. O índice é
+nulo para não apresentar cálculo parcial como definitivo. Sem pesos positivos,
+o índice também é nulo, sem inventar um percentual.
+
+c) A escala de I3 adotada foi 0–10, conforme os exemplos numéricos do texto e
+do frontend. O atributo mediaAcademica [0..1] do diagrama de classes necessita
+alinhamento numa revisão do planejamento.
+
+d) Esta versão mantém um nível e um idioma principal por edital, como o
+frontend. As cardinalidades múltiplas do diagrama ficam como evolução.
+Perfis já têm várias proficiências; requisitos podem indicar a língua em chave.
+
+e) Créditos podem ser percentual declarado OU contagens estruturadas de
+concluídos e totais, nunca ambos. A contagem calcula o percentual sem arredondar
+antes de comparar com o mínimo. Dados acadêmicos são declarados, sem OCR.
+
+f) O último dia de inscrição é inclusivo, no fuso America/Sao_Paulo. Instantes
+de registro e expiração de sessão usam UTC.
+
+g) Os editais fictícios receberam requisito de referência de histórico escolar
+com peso zero, para demonstrar a pendência documental planejada. A referência
+não comprova autenticidade. O prazo do seed é 90 dias a partir da inserção e
+não é renovado ao reiniciar. Não há conta ou senha predefinida.
+
+h) Usuários e simulações usam UUIDs; editais preservam IDs legíveis do frontend.
+Requisitos, proficiências e avaliações são agregados JSON validados. Os PDFs
+originais não foram alterados; adaptações estão identificadas nas especificações.
+
+4. PLAN E TASKS: DA ESPECIFICAÇÃO À ORGANIZAÇÃO DO CÓDIGO
+
+Foi mantida a arquitetura do diagrama de pacotes:
+- Apresentação: app/main.py e schemas.py. HTTP, validação, autenticação da
+  requisição, respostas tipadas e documentação OpenAPI.
+- Aplicação: app/services.py. Orquestra casos de uso e transações.
+- Domínio: app/domain.py. Presença, comparação, pontuação, elegibilidade e
+  integralização de créditos; sem importar FastAPI, Pydantic ou SQLite.
+- Persistência: app/database.py e repository.py. SQLite, chaves estrangeiras,
+  transações, WAL e SQL parametrizado. Colunas de filtro são estruturadas;
+  dados de avaliação ficam em JSON. Perfil, edital e resultado são preservados.
+- Suporte: config.py, security.py e seed.py. Configuração, credenciais e exemplos.
+
+As tarefas foram: extrair requisitos e examinar UML; escrever especificações;
+resolver ambiguidades; definir contratos; implementar domínio; criar schema e
+consultas; implementar autenticação e perfis; expor endpoints; derivar e executar
+testes; confrontar artefatos e documentar demonstração. A situação de cada tarefa
+consta da matriz. A execução da suíte HTTP não foi marcada como concluída.
+
+5. IMPLEMENT: COMPORTAMENTO CONSTRUÍDO
+
+UC01 foi implementado com três estados gerais, avaliação por critério,
+justificativas, pontos e contribuição, indicação de completar perfil, bloqueio
+e armazenamento de resultados. A simulação usa o perfil persistido do usuário
+autenticado; o cliente não pode escolher outro dono no pedido.
+
+UC02 foi implementado com filtros combinados, busca complementar, opções
+derivadas dos editais ativos, normalização textual, paginação e erros claros.
+Valores do usuário são parâmetros de SQL, não trechos concatenados à consulta.
+Caracteres %, _ e aspas são tratados literalmente na busca.
+
+Cadastro/login apoiam os dois fluxos. Senhas usam PBKDF2-SHA256, 600.000
+iterações e salt individual. Sessões usam tokens aleatórios, expiram em 8 h,
+são revogáveis e ficam no banco apenas por hash. Perfil e histórico são privados.
+Logout revoga apenas a sessão atual. Respostas da API desabilitam cache.
+
+Um erro encontrado na validação mostra o papel da especificação: o frontend
+omitia obrigatorio no critério adicional de experiência. A conversão inicial
+interpretou a omissão como verdadeiro e bloqueou o aluno mesmo com os 80%
+esperados. A configuração foi corrigida para exigir obrigatoriedade explícita;
+o seed declara experiência como adicional. Um teste de regressão garante que
+o critério adicional não bloqueia a candidatura.
+
+6. TESTES DERIVADOS DOS CRITÉRIOS
+
+UC01 — classes de equivalência:
+perfil completo/incompleto; critério obrigatório/adicional; atendido/insuficiente/
+ausente; documento presente/ausente; edital ativo/inativo/vencido/inexistente.
+Valores limite: I3 6,99/7/7,01; créditos 39,99/40/40,01; zero como valor conhecido;
+percentuais 0/100; idioma B1/B2/C1 e extremos A1/C2; integralização por contagem
+imediatamente abaixo do mínimo; pesos zero e arredondamento de 62,5 para 63.
+Também se verifica imutabilidade e nova simulação após atualizar perfil.
+
+UC02 — classes de equivalência:
+sem filtro/um/múltiplos; resultado/vazio; atributo suportado/desconhecido;
+catálogo ativo/desativado/vencido. Valores limite: duração exata 6–6,
+intervalo invertido, zero, negativo, decimal; limites de paginação 1/100 e
+rejeição de 0/101; offset negativo e além do fim; último dia de inscrição.
+Também se verifica limpeza dos filtros, acentos/caixa e entrada parecida com SQL.
+
+Suporte: cadastro duplicado, e-mail inválido, senha curta, salt individual,
+token por hash, senha inválida, sessão ausente/expirada, logout, isolamento de
+usuários, reabertura do banco, chaves estrangeiras e rollback transacional.
+
+7. ANALYZE/CONVERGE: EVIDÊNCIA REAL
+
+Comando executado no backend:
+  .venv/bin/python -m unittest discover -s tests -v
+
+Resultado: 52 testes efetivamente executados e aprovados. O unittest reportou
+53 entradas porque uma entrada corresponde ao módulo HTTP ignorado. O arquivo
+tests/test_api.py contém 13 testes preparados que NÃO foram executados.
+
+Também foram verificadas sintaxe com compileall, validação dos exemplos com
+Pydantic e consistência das dependências disponíveis. Os testes de serviços
+usam arquivos SQLite temporários reais, sem mocks do banco ou do domínio.
+
+RNF01: a execução da simulação com persistência foi verificada abaixo de 3 s
+no ambiente de testes. Isso não certifica desempenho total de navegador/rede
+ou comportamento sob carga. RNF02 (responsividade visual) depende da interface.
+
+Limitação do ambiente: a instalação por pip falhou por indisponibilidade da
+rede. Pydantic, HTTPX e outras dependências foram recuperadas do cache local;
+FastAPI não estava disponível. A tentativa pelo índice oficial também falhou.
+Portanto, não foi validada a inicialização HTTP nem a integração TestClient.
+Após instalar requirements-dev.txt com acesso aos pacotes, é preciso repetir
+a suíte completa e confirmar ausência de skips antes da apresentação.
+
+O frontend ainda usa seus dados locais e localStorage. Sua integração com a
+API e as telas de login não foram executadas neste recorte de backend. Os
+endpoints podem ser demonstrados no /docs após instalar e executar a API.
+O fluxo de candidatura não foi implementado: retorna-se apenas a elegibilidade.
+
+8. USO DE IA, BENEFÍCIOS E LIMITAÇÕES DO SDD
+
+Nesta etapa o Codex foi usado para interpretar PDFs e código existente,
+estruturar especificações, decompor tarefas, implementar, derivar testes e
+comparar resultados aos critérios de aceitação. As decisões humanas citadas
+na seção 3 determinaram o escopo adicional e as regras dos exemplos.
+
+O planejamento registra experiências anteriores com Gemini e Google Stitch.
+Não foi executado um segundo modelo nesta sessão. Este arquivo não substitui
+a comparação de ferramentas e a reflexão humana exigidas no relatório final.
+
+Benefícios observados: separação explícita entre ausência e insuficiência,
+detecção de contradição em RF03, derivação de bordas e identificação da
+regressão no critério adicional. A matriz permite localizar regra, código e teste.
+
+Limitações observadas: especificação ambígua requer decisão de domínio;
+documentar não garante correção; uma suíte escrita não equivale a uma suíte
+executada; restrições do ambiente limitam a evidência de integração.
+A aceitação das adaptações do UML e a análise crítica permanecem com o grupo.
+
+Para evoluir: alterar primeiro a especificação e os critérios afetados,
+atualizar tarefas e testes na matriz, implementar, executar os testes e rever
+divergências. As próximas verificações são instalar e validar HTTP, conectar
+o frontend e revisar os pontos de modelagem identificados neste documento.
+
