@@ -11,37 +11,170 @@
 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-72 bg-gradient-to-b from-primary-fixed/30 via-tertiary-fixed/10 to-transparent blur-3xl pointer-events-none -z-10 rounded-full"></div>
 <!-- 1. BREADCRUMB & HEADER CONTEXT -->
 <section class="flex flex-col md:flex-row md:items-center justify-between gap-space-md"><div class="flex items-center"><a href="index.html" class="flex items-center gap-1 px-space-sm py-1 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all duration-200 font-label-md text-label-md shadow-sm border border-surface-container-high/30 cursor-pointer" data-detalhes=""><span class="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_back</span><span class="font-medium">Voltar</span></a></div></section>
-<!-- 2. DASHBOARD DE RESULTADO CENTRAL (HIGH-VISIBILITY SCORE & METRICS) -->
-<section class="w-full rounded-2xl p-space-xl relative overflow-hidden shadow-lg border border-white/20 bg-gradient-to-r from-[#0284c7] to-[#0369a1]">
-  <!-- Glowing ambient backdrop accents -->
-  <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
-  <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-tertiary-fixed/20 blur-3xl pointer-events-none"></div>
-
-  <div class="relative z-10 flex flex-col items-center text-center gap-space-lg w-full max-w-4xl mx-auto">
-    <!-- University Header Identity Anchor -->
-    <div class="flex flex-col sm:flex-row items-center gap-space-md justify-center">
-      <div class="w-20 h-20 rounded-2xl bg-surface-container-lowest p-2 shadow-md border border-white/30 flex items-center justify-center flex-shrink-0">
-        <span class="material-symbols-outlined text-primary" aria-hidden="true">school</span>
+<!-- 2. DASHBOARD DE RESULTADO: SEPARAÇÃO ESTRITA ENTRE ELEGIBILIDADE E COMPATIBILIDADE -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+  
+  <!-- CABEÇALHO DO EDITAL AVALIADO (Largura total) -->
+  <section class="lg:col-span-12 w-full rounded-2xl p-space-lg bg-surface-container-lowest shadow-sm border border-surface-container-high/60 flex flex-col sm:flex-row items-center justify-between gap-space-md">
+    <div class="flex items-center gap-space-md">
+      <div class="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[32px]" aria-hidden="true">school</span>
       </div>
-      <div class="flex flex-col sm:text-left text-center">
-        <h1 class="text-white font-extrabold tracking-tight text-[28px] md:text-[34px] leading-tight" data-slot="universidade">Politecnico di Milano</h1>
-        <span class="text-[16px] md:text-[18px] text-white/90 font-medium flex items-center justify-center sm:justify-start gap-1.5 mt-1" data-slot="local">
-          <span class="material-symbols-outlined text-[20px] text-secondary-fixed" aria-hidden="true">location_on</span>
-          Milão, Itália • Escola de Engenharia &amp; Design
-        </span>
+      <div>
+        <h1 class="text-on-surface font-extrabold text-headline-sm sm:text-headline-md leading-tight" data-slot="universidade">Politecnico di Milano</h1>
+        <p class="text-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+          <span class="material-symbols-outlined text-[16px] text-primary" aria-hidden="true">location_on</span>
+          <span data-slot="local">Milão, Itália</span> • <span data-slot="titulo">Mobilidade Acadêmica</span>
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-col sm:items-end gap-1 text-center sm:text-right">
+      <p id="data-simulacao" class="text-body-sm text-on-surface-variant"></p>
+      <div class="flex items-center gap-space-xs">
+        <button id="simular-novamente" class="radar-botao text-body-sm py-1.5 px-space-md" type="button">Recalcular com perfil atual</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOCO 1: ELEGIBILIDADE (CANDIDATURA) - 7 Colunas -->
+  <section class="lg:col-span-7 flex flex-col justify-between radar-painel-elegibilidade shadow-sm" id="painel-elegibilidade" data-situacao="incompleta">
+    <div class="flex flex-col gap-space-sm">
+      <div class="flex items-center justify-between gap-space-sm flex-wrap">
+        <span class="font-label-sm uppercase tracking-wider font-bold opacity-80">Capacidade de Candidatura</span>
+        <span id="badge-elegibilidade" class="radar-badge text-label-md"></span>
+      </div>
+      <div class="flex items-start gap-space-sm mt-1">
+        <span id="icone-elegibilidade" class="material-symbols-outlined text-[36px] shrink-0" aria-hidden="true">help</span>
+        <div>
+          <h2 id="titulo-elegibilidade" class="text-headline-sm font-extrabold leading-tight">Avaliação da Elegibilidade</h2>
+          <p id="elegibilidade" class="text-body-md mt-1 leading-relaxed"></p>
+          <p data-slot="estado" class="text-body-sm font-bold mt-1 opacity-90"></p>
+        </div>
       </div>
     </div>
 
-    <!-- University Tags -->
-    <div class="flex flex-wrap gap-2.5 justify-center"><span data-slot="titulo" class="text-white/90"></span></div>
+    <div class="pt-space-md border-t border-black/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm">
+      <p class="text-body-sm opacity-85">
+        <span class="font-bold">Regra fundamental:</span> Critérios adicionais não compensam ou substituem o não atendimento de critérios obrigatórios.
+      </p>
+      <a href="perfil.html" data-perfil class="shrink-0 radar-botao bg-surface-container-lowest text-on-surface hover:text-primary shadow-sm text-body-sm py-1.5 px-space-md font-bold" id="btn-acao-perfil">Completar perfil</a>
+    </div>
+  </section>
 
-    <!-- Prominent, Centered, Large Radial Compatibility Gauge Chart -->
-    <div class="flex flex-col items-center justify-center my-space-xs relative"><div class="radar-medidor" id="medidor"><strong id="indice" class="text-white text-[40px]">—</strong><span class="text-white/90 text-sm">Compatibilidade</span></div><p data-slot="estado" class="mt-space-md text-white font-bold text-title-md" role="status"></p><p id="elegibilidade" class="mt-space-xs text-white/90"></p></div>
+  <!-- BLOCO 2: COMPATIBILIDADE GERAL (PONTUAÇÃO ADICIONAL) - 5 Colunas -->
+  <section class="lg:col-span-5 rounded-2xl p-space-lg bg-surface-container-lowest shadow-sm border border-surface-container-high/60 flex flex-col justify-between" id="painel-compatibilidade">
+    <div>
+      <div class="flex items-center justify-between gap-space-sm mb-space-sm">
+        <span class="font-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Compatibilidade Geral</span>
+        <span id="badge-formula" class="radar-badge radar-badge-info">Fórmula: Média Ponderada</span>
+      </div>
+
+      <div class="flex items-center gap-space-md my-space-xs">
+        <div class="radar-medidor bg-primary/10 border-primary/30 shrink-0" id="medidor">
+          <strong id="indice" class="text-primary text-[36px] font-black">—</strong>
+          <span class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Aderência</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <p id="formula-explicacao" class="text-body-sm text-on-surface font-medium leading-snug">
+            Calculado a partir do grau de atendimento aos critérios adicionais cadastrados no edital.
+          </p>
+          <p id="compatibilidade-nao-aplicavel" class="text-body-sm text-on-surface-variant" hidden>
+            Este edital não possui critérios adicionais cadastrados. O índice é <strong>Não aplicável</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerta Obrigatório de Não Probabilidade -->
+    <div class="mt-space-md p-space-sm bg-surface-container-low rounded-xl border border-surface-container-high/50 flex items-start gap-2">
+      <span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5" aria-hidden="true">info</span>
+      <p class="text-[11px] text-on-surface-variant leading-tight">
+        <strong>Aviso:</strong> O índice de compatibilidade mede a aderência do seu perfil aos critérios pontuáveis. <strong>Não representa probabilidade de aprovação ou seleção</strong> no intercâmbio.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<p id="erro-simulacao" role="alert" class="text-error" hidden></p>
+
+<!-- 3. SEÇÃO DE REQUISITOS OBRIGATÓRIOS (ELIMINATÓRIOS) -->
+<section class="w-full flex flex-col gap-space-md mt-space-lg" id="secao-obrigatorios">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-xs border-b border-surface-container-high">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="radar-badge radar-badge-obrigatorio font-bold">Eliminatórios</span>
+        <h2 class="text-headline-sm font-bold text-on-surface">Critérios Obrigatórios (Elegibilidade)</h2>
+      </div>
+      <p class="text-body-sm text-on-surface-variant mt-0.5">
+        Requisitos estritos de habilitação. Todos devem ser atendidos sem pendências para que a candidatura seja autorizada.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+    <!-- Coluna 1: Atendidos -->
+    <div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest border border-emerald-100 shadow-sm">
+      <div class="flex items-center justify-between pb-space-xs border-b border-surface-container">
+        <h3 class="text-title-md text-emerald-800 font-bold flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-emerald-600 text-[20px]" aria-hidden="true">check_circle</span>
+          Atendidos
+        </h3>
+        <span id="contagem-obrigatorios-atendidos" class="radar-badge radar-badge-sucesso font-bold">0</span>
+      </div>
+      <ul id="obrigatorios-atendidos" class="grid gap-space-sm"></ul>
+    </div>
+
+    <!-- Coluna 2: Não Atendidos (Impeditivos) -->
+    <div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest border border-red-100 shadow-sm">
+      <div class="flex items-center justify-between pb-space-xs border-b border-surface-container">
+        <h3 class="text-title-md text-red-800 font-bold flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-red-600 text-[20px]" aria-hidden="true">cancel</span>
+          Não Atendidos (Impeditivos)
+        </h3>
+        <span id="contagem-obrigatorios-nao-atendidos" class="radar-badge radar-badge-erro font-bold">0</span>
+      </div>
+      <ul id="obrigatorios-nao-atendidos" class="grid gap-space-sm"></ul>
+    </div>
+
+    <!-- Coluna 3: Pendentes / Ausentes -->
+    <div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest border border-amber-100 shadow-sm">
+      <div class="flex items-center justify-between pb-space-xs border-b border-surface-container">
+        <h3 class="text-title-md text-amber-800 font-bold flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-amber-600 text-[20px]" aria-hidden="true">pending_actions</span>
+          Pendentes de Avaliação
+        </h3>
+        <span id="contagem-obrigatorios-ausentes" class="radar-badge radar-badge-alerta font-bold">0</span>
+      </div>
+      <ul id="obrigatorios-ausentes" class="grid gap-space-sm"></ul>
+    </div>
   </div>
 </section>
-<p id="data-simulacao" class="text-on-surface-variant"></p><button id="simular-novamente" class="radar-botao" type="button">Simular novamente com meu perfil atual</button><p id="erro-simulacao" role="alert" class="text-error" hidden></p>
-<!-- 3. CHECKLIST DE REQUISITOS EM 2 COLUNAS VISUAIS -->
-<section class="w-full flex flex-col gap-space-md"><div class="flex flex-wrap items-center justify-between gap-space-sm"><h2 class="text-headline-sm font-bold">Avaliação por critério</h2><a href="perfil.html" data-perfil class="rounded-full bg-primary-fixed text-primary px-space-md py-space-xs font-bold">Completar perfil</a></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg"><section class="rounded-2xl bg-surface-container-low p-space-lg"><h3 class="text-title-md text-tertiary font-bold mb-space-md">Critérios atendidos</h3><ul id="atendidos" class="grid gap-space-sm"></ul></section><section class="rounded-2xl bg-secondary-fixed/20 p-space-lg"><h3 class="text-title-md text-secondary font-bold mb-space-md">Pendências e critérios não atendidos</h3><ul id="pendencias" class="grid gap-space-sm"></ul></section></div><p class="text-body-sm text-on-surface-variant">O resultado preserva o perfil e o edital usados no momento da simulação. O índice mede aderência aos critérios e não a probabilidade de aprovação.</p></section>
+
+<!-- 4. SEÇÃO DE CRITÉRIOS ADICIONAIS (CLASSIFICATÓRIOS / COMPATIBILIDADE) -->
+<section class="w-full flex flex-col gap-space-md mt-space-lg" id="secao-adicionais">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-xs border-b border-surface-container-high">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="radar-badge radar-badge-adicional font-bold">Classificatórios</span>
+        <h2 class="text-headline-sm font-bold text-on-surface">Critérios Adicionais (Compatibilidade Individual)</h2>
+      </div>
+      <p class="text-body-sm text-on-surface-variant mt-0.5">
+        Avaliação individual de pontuação (0% a 100%). Critérios adicionais <strong>não bloqueiam sua candidatura</strong> caso não sejam atendidos.
+      </p>
+    </div>
+  </div>
+
+  <p id="sem-criterios-adicionais-msg" class="p-space-lg bg-surface-container-lowest rounded-2xl border border-surface-container text-on-surface-variant text-body-md text-center" hidden>
+    Este edital não possui critérios adicionais pontuáveis cadastrados.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md" id="lista-adicionais"></div>
+
+  <!-- Contêineres de compatibilidade legada (ocultos) para não quebrar referências -->
+  <ul id="atendidos" hidden></ul>
+  <ul id="pendencias" hidden></ul>
+</section>
 <!-- 4. RODAPÉ DO RESULTADO E AÇÕES DE DECISÃO -->
 
 </div>

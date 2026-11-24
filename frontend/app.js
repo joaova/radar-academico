@@ -2,6 +2,15 @@ import { areas, idiomas, niveisIdioma } from './dados.js';
 import { imagens } from './imagens.js';
 import { api, ApiError, lerToken, salvarToken, limparSessao, pedirLogin, destinoSeguro } from './api.js';
 
+import { MODO_USA_PERFIL_EXEMPLO } from './config.js';
+import { PERFIL_EXEMPLO } from './perfil-exemplo.js';
+
+// Modo mock: grava o perfil de exemplo na conta antes de consultar/simular.
+async function aplicarPerfilExemplo() {
+  if (!MODO_USA_PERFIL_EXEMPLO) return;
+  await api('/perfil', { method: 'PUT', body: PERFIL_EXEMPLO });
+}
+
 const $ = seletor => document.querySelector(seletor);
 const $$ = (seletor, raiz = document) => [...raiz.querySelectorAll(seletor)];
 const params = new URLSearchParams(location.search);
@@ -63,6 +72,7 @@ function valoresEdital(item) {
     nivel: item.nivel === 'graduação' ? 'Graduação' : 'Pós-graduação',
     meses: `${item.meses} meses`, idioma: `${item.idioma} ${item.proficiencia}`,
     local: `${item.cidade}, ${item.pais}`, vagas: `${item.vagas} vagas`,
+    inscricoes: item.data_limite ? item.data_limite.split('-').reverse().join('/') : '',
     imagem: imagens[item.id] || '',
   };
 }
@@ -245,29 +255,160 @@ async function iniciarCatalogo() {
 }
 
 function textoCriterio(criterio, valor) {
-  if (valor === null) return 'Não informado';
+  if (valor === null || valor === undefined || valor === '') return 'Não informado';
   if (criterio.campo === 'creditos') return numero.format(valor) + '%';
   return typeof valor === 'number' ? numero.format(valor) : valor;
 }
 
+function normalizar(texto) {
+  return String(texto || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function obterValorPerfil(perfilAluno, criterio, editalObj) {
+  if (!perfilAluno) return null;
+  const campo = criterio.campo;
+  const chave = criterio.chave;
+  if (campo === 'nivel') return perfilAluno.nivel ?? null;
+  if (campo === 'i3') return perfilAluno.i3 ?? null;
+  if (campo === 'creditos') {
+    if (perfilAluno.creditos_totais) {
+      return Number((perfilAluno.creditos_concluidos * 100 / perfilAluno.creditos_totais).toFixed(2));
+    }
+    return perfilAluno.creditos ?? null;
+  }
+  if (campo === 'idioma') {
+    return perfilAluno.idiomas?.[chave || editalObj.idioma] ?? null;
+  }
+  if (campo === 'experiencia') {
+    if (perfilAluno.experiencias === null || perfilAluno.experiencias === undefined) return null;
+    const alvo = normalizar(chave || editalObj.area);
+    const tem = (perfilAluno.experiencias || []).some(exp => normalizar(exp) === alvo);
+    return tem ? 'Sim' : 'Não';
+  }
+  if (campo === 'disciplina') {
+    if (perfilAluno.disciplinas === null || perfilAluno.disciplinas === undefined) return null;
+    const alvo = normalizar(chave);
+    const tem = (perfilAluno.disciplinas || []).some(disc => normalizar(disc) === alvo);
+    return tem ? 'Sim' : 'Não';
+  }
+  if (campo === 'documento') {
+    return perfilAluno.documentos?.[chave] ?? null;
+  }
+  return perfilAluno[campo] ?? null;
+}
+
+function avaliarPrevia(criterio, valor) {
+  if (valor === null || valor === undefined || valor === '') return 'ausente';
+  const campo = criterio.campo;
+  const esperado = criterio.esperado;
+  if (campo === 'i3' || campo === 'creditos') {
+    return Number(valor) >= Number(esperado) ? 'atendido' : 'não atendido';
+  }
+  if (campo === 'idioma') {
+    const niveis = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const idxPerfil = niveis.indexOf(valor);
+    const idxEsp = niveis.indexOf(esperado);
+    if (idxPerfil === -1) return 'ausente';
+    return idxPerfil >= idxEsp ? 'atendido' : 'não atendido';
+  }
+  if (campo === 'documento') {
+    return String(valor).trim() ? 'atendido' : 'ausente';
+  }
+  return normalizar(valor) === normalizar(esperado) ? 'atendido' : 'não atendido';
+}
+
+function cartaoDetalhesCriterio(criterio, perfilAluno, editalObj) {
+  const item = document.createElement('div');
+  item.className = 'radar-card-criterio';
+
+  const cabecalho = document.createElement('div');
+  cabecalho.className = 'flex items-center justify-between gap-2 mb-2 flex-wrap';
+
+  const titulo = document.createElement('h3');
+  titulo.className = 'text-title-md font-bold text-on-surface';
+  titulo.textContent = criterio.rotulo;
+
+  const badgeTipo = document.createElement('span');
+  badgeTipo.className = criterio.obrigatorio ? 'radar-badge radar-badge-obrigatorio' : 'radar-badge radar-badge-adicional';
+  badgeTipo.textContent = criterio.obrigatorio ? 'Obrigatório' : 'Adicional';
+  cabecalho.append(titulo, badgeTipo);
+
+  const corpo = document.createElement('div');
+  corpo.className = 'flex flex-col gap-1.5 text-body-sm text-on-surface-variant my-1';
+
+  const linhaExigido = document.createElement('p');
+  linhaExigido.innerHTML = `<strong>Exigência do edital:</strong> ${textoCriterio(criterio, criterio.esperado)}`;
+  corpo.append(linhaExigido);
+
+  if (criterio.peso && !criterio.obrigatorio) {
+    const linhaPeso = document.createElement('p');
+    linhaPeso.innerHTML = `<span class="radar-badge radar-badge-info text-[11px]">Peso na pontuação: ${criterio.peso}</span>`;
+    corpo.append(linhaPeso);
+  }
+
+  // Comparação com perfil do aluno (se logado)
+  if (perfilAluno) {
+    const valorPerfil = obterValorPerfil(perfilAluno, criterio, editalObj);
+    const estado = avaliarPrevia(criterio, valorPerfil);
+    item.dataset.estado = estado;
+
+    const linhaPerfil = document.createElement('div');
+    linhaPerfil.className = 'mt-2 pt-2 border-t border-surface-container flex items-center justify-between gap-2 flex-wrap';
+
+    const textoVal = document.createElement('span');
+    textoVal.className = 'text-body-sm';
+    textoVal.innerHTML = `<strong>No seu perfil:</strong> ${textoCriterio(criterio, valorPerfil)}`;
+
+    const statusBadge = document.createElement('span');
+    if (estado === 'atendido') {
+      statusBadge.className = 'radar-badge radar-badge-sucesso';
+      statusBadge.innerHTML = '<span class="material-symbols-outlined text-[14px]">check</span> Atendido';
+    } else if (estado === 'não atendido') {
+      statusBadge.className = 'radar-badge radar-badge-erro';
+      statusBadge.innerHTML = `<span class="material-symbols-outlined text-[14px]">close</span> ${criterio.obrigatorio ? 'Impeditivo' : 'Não atende'}`;
+    } else {
+      statusBadge.className = 'radar-badge radar-badge-alerta';
+      statusBadge.innerHTML = '<span class="material-symbols-outlined text-[14px]">warning</span> Pendente de preenchimento';
+    }
+    linhaPerfil.append(textoVal, statusBadge);
+    corpo.append(linhaPerfil);
+
+    if (estado === 'ausente' && criterio.obrigatorio) {
+      const alerta = document.createElement('p');
+      alerta.className = 'text-[11px] text-amber-800 bg-amber-50 p-1.5 rounded border border-amber-200 mt-1';
+      alerta.innerHTML = '⚠️ <strong>Pendente:</strong> Informe este dado no seu perfil para habilitar sua elegibilidade.';
+      corpo.append(alerta);
+    }
+  }
+
+  item.append(cabecalho, corpo);
+  return item;
+}
+
 function cartaoCriterio(criterio, avaliado = false) {
   const item = document.createElement(avaliado ? 'li' : 'div');
-  item.className = 'bg-surface-container-lowest rounded-xl shadow-sm p-space-md';
+  item.className = 'bg-surface-container-lowest rounded-xl shadow-sm p-space-md border border-surface-container-high/50';
   const titulo = document.createElement('strong');
+  titulo.className = 'text-title-md text-on-surface block';
   titulo.textContent = criterio.rotulo;
   const tipo = document.createElement('p');
-  tipo.className = 'text-body-sm text-on-surface-variant';
-  tipo.textContent = [criterio.obrigatorio ? 'Obrigatório' : 'Adicional', criterio.peso ? `peso ${criterio.peso}` : null].filter(Boolean).join(' · ');
+  tipo.className = 'text-body-sm text-on-surface-variant mt-0.5';
+  tipo.textContent = [criterio.obrigatorio ? 'Obrigatório (Elegibilidade)' : 'Adicional (Pontuação)', criterio.peso ? `Peso: ${criterio.peso}` : null].filter(Boolean).join(' · ');
   const detalhe = document.createElement('p');
   detalhe.className = 'text-body-sm mt-space-xs';
-  detalhe.textContent = (['i3', 'creditos', 'idioma'].includes(criterio.campo) ? 'Mínimo: ' : 'Critério: ') + textoCriterio(criterio, criterio.esperado);
+  detalhe.textContent = (['i3', 'creditos', 'idioma'].includes(criterio.campo) ? 'Exigência mínima: ' : 'Critério: ') + textoCriterio(criterio, criterio.esperado);
   item.append(titulo, tipo, detalhe);
   if (avaliado) {
-    detalhe.textContent += ` · Perfil: ${textoCriterio(criterio, criterio.valor)}`;
+    detalhe.textContent += ` · Registrado no perfil: ${textoCriterio(criterio, criterio.valor)}`;
     const estado = document.createElement('p');
     estado.className = 'font-bold mt-space-xs';
-    estado.textContent = ({ atendido: 'Atendido', 'não atendido': 'Não atendido', ausente: 'Não avaliado · falta informação' })[criterio.estado];
+    estado.textContent = ({ atendido: 'Atendido', 'não atendido': 'Não atendido', ausente: 'Pendente · Informação ausente' })[criterio.estado];
     const justificativa = document.createElement('p');
+    justificativa.className = 'text-body-sm text-on-surface-variant mt-0.5';
     justificativa.textContent = criterio.justificativa;
     item.append(estado, justificativa);
   }
@@ -284,6 +425,7 @@ function conectarSimulacao(botao) {
     botao.setAttribute('aria-busy', 'true');
     $('#erro-simulacao').hidden = true;
     try {
+      await aplicarPerfilExemplo();
       const resultado = await api(`/oportunidades/${encodeURIComponent(edital.id)}/simulacoes`, { method: 'POST' });
       location.assign(urlResultado(resultado));
     } catch (erro) { mostrarErro($('#erro-simulacao'), erro); }
@@ -302,10 +444,41 @@ async function iniciarDetalhes() {
   const botao = $('[data-resultado]');
   botao.href = '#';
   conectarSimulacao(botao);
-  $('#requisitos').append(...edital.requisitos.map(item => cartaoCriterio(item)));
-  const prazo = document.createElement('p');
-  prazo.textContent = `Inscrições até ${edital.data_limite.split('-').reverse().join('/')}.`;
-  $('#requisitos').before(prazo);
+
+  // Tenta carregar perfil para exibir comparação imediata
+  let perfilAluno = null;
+  try { await aplicarPerfilExemplo(); } catch {}
+  try { perfilAluno = await api('/perfil'); } catch {}
+  if (MODO_USA_PERFIL_EXEMPLO) {
+    const aviso = document.createElement('p');
+    aviso.className = 'radar-aviso radar-aviso-alerta';
+    aviso.textContent = 'Modo perfil de exemplo ativo: os dados do seu perfil são fictícios (MODO_USA_PERFIL_EXEMPLO em config.js).';
+    $('#erro-simulacao').before(aviso);
+  }
+
+  const obrigatorios = edital.requisitos.filter(c => c.obrigatorio);
+  const adicionais = edital.requisitos.filter(c => !c.obrigatorio);
+
+  const containerObrigatorios = $('#requisitos-obrigatorios');
+  if (containerObrigatorios) {
+    containerObrigatorios.replaceChildren(...obrigatorios.map(c => cartaoDetalhesCriterio(c, perfilAluno, edital)));
+  }
+
+  const containerAdicionais = $('#requisitos-adicionais');
+  if (containerAdicionais) {
+    if (adicionais.length === 0) {
+      $('#sem-adicionais')?.removeAttribute('hidden');
+    } else {
+      $('#sem-adicionais')?.setAttribute('hidden', 'true');
+      containerAdicionais.replaceChildren(...adicionais.map(c => cartaoDetalhesCriterio(c, perfilAluno, edital)));
+    }
+  }
+
+  // Compatibilidade legada
+  const containerLegado = $('#requisitos');
+  if (containerLegado) {
+    containerLegado.replaceChildren(...edital.requisitos.map(item => cartaoCriterio(item)));
+  }
 }
 
 async function iniciarResultado() {
@@ -314,24 +487,218 @@ async function iniciarResultado() {
   edital = avaliacao.oportunidade_snapshot;
   atualizarSlots($('main'), { ...valoresEdital(edital), estado: avaliacao.estado });
   $('[data-detalhes]').href = url('detalhes');
-  $('#indice').textContent = avaliacao.indice === null ? '—' : `${avaliacao.indice}%`;
-  $('#elegibilidade').textContent = avaliacao.candidatura_habilitada
-    ? 'Você atende aos requisitos obrigatórios deste edital.'
-    : avaliacao.incompleta ? 'Candidatura bloqueada. Complete as informações obrigatórias.'
-      : 'Candidatura bloqueada. Consulte abaixo os requisitos obrigatórios.';
-  $('main [data-perfil]').textContent = avaliacao.incompleta ? 'Completar perfil' : 'Editar perfil';
-  $('#data-simulacao').textContent = `Simulação salva em ${dataHora(avaliacao.criado_em)}. Alterações posteriores no perfil não modificam este resultado.`;
-  for (const criterio of avaliacao.criterios) {
-    const lista = criterio.estado === 'atendido' ? $('#atendidos') : $('#pendencias');
-    lista.append(cartaoCriterio(criterio, true));
+
+  // --- 1. RESULTADO DA ELEGIBILIDADE ---
+  const painelElegibilidade = $('#painel-elegibilidade');
+  const badgeElegibilidade = $('#badge-elegibilidade');
+  const iconeElegibilidade = $('#icone-elegibilidade');
+  const tituloElegibilidade = $('#titulo-elegibilidade');
+  const textoElegibilidade = $('#elegibilidade');
+  const btnPerfil = $('#btn-acao-perfil') || $('main [data-perfil]');
+
+  if (avaliacao.candidatura_habilitada) {
+    painelElegibilidade.dataset.situacao = 'compativel';
+    badgeElegibilidade.className = 'radar-badge radar-badge-sucesso';
+    badgeElegibilidade.innerHTML = '<span class="material-symbols-outlined text-[16px]">check_circle</span> Candidatura Habilitada';
+    iconeElegibilidade.textContent = 'check_circle';
+    iconeElegibilidade.className = 'material-symbols-outlined text-[36px] text-emerald-600 shrink-0';
+    tituloElegibilidade.textContent = 'Elegível';
+    textoElegibilidade.textContent = 'Você atende a todos os critérios obrigatórios deste edital. Sua candidatura está autorizada.';
+    if (btnPerfil) btnPerfil.textContent = 'Editar perfil';
+  } else if (avaliacao.incompleta) {
+    painelElegibilidade.dataset.situacao = 'incompleta';
+    badgeElegibilidade.className = 'radar-badge radar-badge-alerta';
+    badgeElegibilidade.innerHTML = '<span class="material-symbols-outlined text-[16px]">pending_actions</span> Avaliação Incompleta';
+    iconeElegibilidade.textContent = 'pending_actions';
+    iconeElegibilidade.className = 'material-symbols-outlined text-[36px] text-amber-600 shrink-0';
+    tituloElegibilidade.textContent = 'Avaliação Incompleta';
+    textoElegibilidade.textContent = 'Candidatura bloqueada. Existem informações ou documentos obrigatórios ausentes no seu perfil. Complete o perfil para viabilizar a análise.';
+    if (btnPerfil) btnPerfil.textContent = 'Completar perfil';
+  } else {
+    painelElegibilidade.dataset.situacao = 'incompativel';
+    badgeElegibilidade.className = 'radar-badge radar-badge-erro';
+    badgeElegibilidade.innerHTML = '<span class="material-symbols-outlined text-[16px]">cancel</span> Não Elegível';
+    iconeElegibilidade.textContent = 'cancel';
+    iconeElegibilidade.className = 'material-symbols-outlined text-[36px] text-red-600 shrink-0';
+    tituloElegibilidade.textContent = 'Não Elegível';
+    textoElegibilidade.textContent = 'Candidatura bloqueada. Pelo menos um critério obrigatório mínimo não foi atendido. Critérios adicionais não substituem critérios obrigatórios.';
+    if (btnPerfil) btnPerfil.textContent = 'Ajustar perfil';
   }
-  for (const [id, mensagem] of [['atendidos', 'Nenhum critério atendido.'], ['pendencias', 'Nenhuma pendência.']]) {
-    if (!document.getElementById(id).children.length) {
-      const item = document.createElement('li');
-      item.textContent = mensagem;
-      document.getElementById(id).append(item);
+
+  // --- 2. COMPATIBILIDADE GERAL ---
+  const adicionais = avaliacao.criterios.filter(c => !c.obrigatorio);
+  const temAdicionais = adicionais.length > 0;
+  const elementoIndice = $('#indice');
+  const formulaExplicacao = $('#formula-explicacao');
+  const badgeFormula = $('#badge-formula');
+  const msgNaoAplicavel = $('#compatibilidade-nao-aplicavel');
+
+  if (!temAdicionais) {
+    elementoIndice.textContent = 'N/A';
+    if (badgeFormula) badgeFormula.textContent = 'Fórmula: Não aplicável';
+    if (formulaExplicacao) formulaExplicacao.hidden = true;
+    if (msgNaoAplicavel) msgNaoAplicavel.hidden = false;
+  } else {
+    if (badgeFormula) badgeFormula.textContent = 'Fórmula: Média Ponderada';
+    if (msgNaoAplicavel) msgNaoAplicavel.hidden = true;
+    if (formulaExplicacao) formulaExplicacao.hidden = false;
+
+    if (avaliacao.incompleta) {
+      elementoIndice.textContent = '—';
+      if (formulaExplicacao) {
+        formulaExplicacao.textContent = 'O cálculo do percentual geral permanece suspenso até que as informações obrigatórias do perfil sejam preenchidas.';
+      }
+    } else {
+      elementoIndice.textContent = avaliacao.indice === null ? '—' : `${avaliacao.indice}%`;
+      if (formulaExplicacao) {
+        formulaExplicacao.textContent = `Calculada pela média ponderada dos critérios adicionais pontuados (${avaliacao.pontos_obtidos} de ${avaliacao.peso_total} pontos possíveis).`;
+      }
     }
   }
+
+  $('#data-simulacao').textContent = `Simulação realizada em ${dataHora(avaliacao.criado_em)}.`;
+
+  // --- 3. SEÇÃO DE CRITÉRIOS OBRIGATÓRIOS (ELIMINATÓRIOS) ---
+  const obrigatorios = avaliacao.criterios.filter(c => c.obrigatorio);
+  const obAtendidos = obrigatorios.filter(c => c.estado === 'atendido');
+  const obNaoAtendidos = obrigatorios.filter(c => c.estado === 'não atendido');
+  const obAusentes = obrigatorios.filter(c => c.estado === 'ausente');
+
+  $('#contagem-obrigatorios-atendidos').textContent = obAtendidos.length;
+  $('#contagem-obrigatorios-nao-atendidos').textContent = obNaoAtendidos.length;
+  $('#contagem-obrigatorios-ausentes').textContent = obAusentes.length;
+
+  function renderCardObrigatorio(criterio, tipo) {
+    const li = document.createElement('li');
+    li.className = 'p-space-sm rounded-xl border flex flex-col gap-1 text-body-sm';
+    if (tipo === 'atendido') {
+      li.className += ' bg-emerald-50/60 border-emerald-200 text-emerald-950';
+    } else if (tipo === 'nao_atendido') {
+      li.className += ' bg-red-50/60 border-red-200 text-red-950';
+    } else {
+      li.className += ' bg-amber-50/60 border-amber-200 text-amber-950';
+    }
+
+    const topo = document.createElement('div');
+    topo.className = 'flex items-center justify-between gap-1';
+    const strong = document.createElement('strong');
+    strong.textContent = criterio.rotulo;
+    topo.append(strong);
+
+    const detalhe = document.createElement('p');
+    detalhe.className = 'text-[12px] opacity-90';
+    detalhe.innerHTML = `<strong>Exigido:</strong> ${textoCriterio(criterio, criterio.esperado)} · <strong>Seu perfil:</strong> ${textoCriterio(criterio, criterio.valor)}`;
+
+    const motivo = document.createElement('p');
+    motivo.className = 'text-[11px] font-medium mt-0.5';
+    if (tipo === 'nao_atendido') {
+      motivo.textContent = '⛔ Requisito não atendido: impede a candidatura.';
+    } else if (tipo === 'ausente') {
+      motivo.textContent = '⚠️ Documento/informação ausente: impede a avaliação de elegibilidade.';
+    } else {
+      motivo.textContent = '✓ Requisito atendido com sucesso.';
+    }
+
+    li.append(topo, detalhe, motivo);
+    return li;
+  }
+
+  function preencherListaObrigatorios(containerId, itens, tipo, vazioMsg) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (itens.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'text-[12px] text-on-surface-variant italic p-2';
+      li.textContent = vazioMsg;
+      container.replaceChildren(li);
+    } else {
+      container.replaceChildren(...itens.map(c => renderCardObrigatorio(c, tipo)));
+    }
+  }
+
+  preencherListaObrigatorios('obrigatorios-atendidos', obAtendidos, 'atendido', 'Nenhum requisito atendido.');
+  preencherListaObrigatorios('obrigatorios-nao-atendidos', obNaoAtendidos, 'nao_atendido', 'Nenhum requisito impeditivo.');
+  preencherListaObrigatorios('obrigatorios-ausentes', obAusentes, 'ausente', 'Nenhuma informação pendente.');
+
+  // --- 4. SEÇÃO DE CRITÉRIOS ADICIONAIS (CLASSIFICATÓRIOS) ---
+  const containerAdicionais = $('#lista-adicionais');
+  const msgSemAdicionais = $('#sem-criterios-adicionais-msg');
+
+  if (adicionais.length === 0) {
+    if (msgSemAdicionais) msgSemAdicionais.hidden = false;
+    if (containerAdicionais) containerAdicionais.replaceChildren();
+  } else {
+    if (msgSemAdicionais) msgSemAdicionais.hidden = true;
+    containerAdicionais.replaceChildren(...adicionais.map(criterio => {
+      const card = document.createElement('div');
+      card.className = 'radar-card-criterio bg-surface-container-lowest border border-surface-container-high/60';
+
+      const topo = document.createElement('div');
+      topo.className = 'flex items-start justify-between gap-2 mb-2';
+
+      const rotulo = document.createElement('h4');
+      rotulo.className = 'text-title-md font-bold text-on-surface';
+      rotulo.textContent = criterio.rotulo;
+
+      const badges = document.createElement('div');
+      badges.className = 'flex items-center gap-1.5 flex-wrap';
+
+      const badgeAdicional = document.createElement('span');
+      badgeAdicional.className = 'radar-badge radar-badge-adicional';
+      badgeAdicional.textContent = 'Não impeditivo';
+      badges.append(badgeAdicional);
+
+      if (criterio.peso) {
+        const badgePeso = document.createElement('span');
+        badgePeso.className = 'radar-badge radar-badge-info';
+        badgePeso.textContent = `Peso: ${criterio.peso}`;
+        badges.append(badgePeso);
+      }
+      topo.append(rotulo, badges);
+
+      // Pontuação individual (0% a 100%)
+      const pontuacaoDiv = document.createElement('div');
+      pontuacaoDiv.className = 'my-2';
+
+      const pontuacaoRotulo = document.createElement('div');
+      pontuacaoRotulo.className = 'flex justify-between items-center text-body-sm font-semibold mb-1';
+      pontuacaoRotulo.innerHTML = `<span>Pontuação Individual:</span> <span class="font-bold text-primary">${criterio.percentual}%</span>`;
+
+      const barraContainer = document.createElement('div');
+      barraContainer.className = 'radar-barra-progresso';
+      const barraValor = document.createElement('div');
+      barraValor.className = 'radar-barra-valor';
+      barraValor.style.width = `${criterio.percentual}%`;
+      barraValor.dataset.pontuacao = String(criterio.percentual);
+      barraContainer.append(barraValor);
+      pontuacaoDiv.append(pontuacaoRotulo, barraContainer);
+
+      // Detalhes da avaliação
+      const corpo = document.createElement('div');
+      corpo.className = 'text-body-sm text-on-surface-variant flex flex-col gap-1 mt-1';
+
+      const linhaDados = document.createElement('p');
+      linhaDados.className = 'text-[12px]';
+      linhaDados.innerHTML = `<strong>Condição:</strong> ${textoCriterio(criterio, criterio.esperado)} · <strong>Seu perfil:</strong> ${textoCriterio(criterio, criterio.valor)}`;
+
+      const justificativa = document.createElement('p');
+      justificativa.className = 'text-[11px] text-on-surface-variant italic mt-1';
+      justificativa.textContent = criterio.justificativa;
+
+      corpo.append(linhaDados, justificativa);
+      card.append(topo, pontuacaoDiv, corpo);
+      return card;
+    }));
+  }
+
+  // --- Suporte a Contêineres Legados (evita regressão) ---
+  const listaAtendidos = $('#atendidos');
+  const listaPendencias = $('#pendencias');
+  if (listaAtendidos && listaPendencias) {
+    listaAtendidos.replaceChildren(...avaliacao.atendidos.map(c => cartaoCriterio(c, true)));
+    listaPendencias.replaceChildren(...[...avaliacao.nao_atendidos, ...avaliacao.ausentes].map(c => cartaoCriterio(c, true)));
+  }
+
   conectarSimulacao($('#simular-novamente'));
 }
 

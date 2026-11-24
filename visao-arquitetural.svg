@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 520" width="100%" height="100%" style="background:#ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <defs>
+    <!-- Marcador de seta azul -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb" />
+    </marker>
+    <!-- Marcador de seta verde -->
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669" />
+    </marker>
+    <!-- Marcador de seta roxa -->
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#7c3aed" />
+    </marker>
+    <!-- Sombra sutil -->
+    <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06" flood-color="#0f172a" />
+    </filter>
+  </defs>
+
+  <!-- Título do Diagrama -->
+  <text x="50" y="48" font-size="24" font-weight="700" fill="#0f172a">Visão Arquitetural da Solução — Radar Acadêmico</text>
+  <text x="50" y="74" font-size="14" fill="#64748b">Fluxo de controle e distribuição de responsabilidades da aplicação (Cliente-Servidor em Camadas)</text>
+
+  <!-- ==================== CONTAINER DE NUVEM: RENDER ==================== -->
+  <rect x="260" y="105" width="580" height="380" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 6" />
+  <rect x="280" y="93" width="200" height="26" rx="6" fill="#e2e8f0" />
+  <text x="290" y="111" font-size="12" font-weight="600" fill="#334155">Render Cloud (PaaS / Hospedagem)</text>
+
+  <!-- ==================== CONTAINER DE NUVEM: NEON ==================== -->
+  <rect x="910" y="105" width="290" height="380" rx="16" fill="#faf5ff" stroke="#ddd6fe" stroke-width="2" stroke-dasharray="8 6" />
+  <rect x="930" y="93" width="180" height="26" rx="6" fill="#ede9fe" />
+  <text x="940" y="111" font-size="12" font-weight="600" fill="#6b21a8">Neon Cloud (DBaaS Postgres)</text>
+
+  <!-- ==================== 1. BROWSER ==================== -->
+  <g transform="translate(50, 140)" filter="url(#card-shadow)">
+    <rect width="160" height="310" rx="14" fill="#ffffff" stroke="#93c5fd" stroke-width="2" />
+    <!-- Top bar do navegador -->
+    <path d="M 0 14 Q 0 0 14 0 L 146 0 Q 160 0 160 14 L 160 38 L 0 38 Z" fill="#eff6ff" />
+    <circle cx="18" cy="19" r="4" fill="#ef4444" />
+    <circle cx="30" cy="19" r="4" fill="#eab308" />
+    <circle cx="42" cy="19" r="4" fill="#22c55e" />
+    <rect x="56" y="11" width="90" height="16" rx="4" fill="#ffffff" stroke="#bfdbfe" />
+    
+    <text x="80" y="80" text-anchor="middle" font-size="18" font-weight="700" fill="#1e3a8a">Browser</text>
+    <text x="80" y="104" text-anchor="middle" font-size="13" font-weight="500" fill="#3b82f6">Aluno Universitário</text>
+    <line x1="20" y1="122" x2="140" y2="122" stroke="#e2e8f0" stroke-width="1" />
+    
+    <text x="80" y="152" text-anchor="middle" font-size="12" fill="#64748b">Acesso via URL</text>
+    <text x="80" y="172" text-anchor="middle" font-size="11" font-family="monospace" fill="#0284c7">radar-academico</text>
+    <text x="80" y="188" text-anchor="middle" font-size="11" font-family="monospace" fill="#0284c7">.onrender.com</text>
+    
+    <rect x="18" y="222" width="124" height="42" rx="8" fill="#f1f5f9" />
+    <text x="80" y="240" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Interação do Usuário</text>
+    <text x="80" y="255" text-anchor="middle" font-size="10" fill="#64748b">Login · Filtros · Simulação</text>
+  </g>
+
+  <!-- SETA 1: BROWSER -> FRONTEND -->
+  <line x1="212" y1="285" x2="278" y2="285" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)" />
+  <rect x="220" y="256" width="50" height="20" rx="4" fill="#dbeafe" />
+  <text x="245" y="270" text-anchor="middle" font-size="10" font-weight="700" fill="#1d4ed8">HTTPS</text>
+
+  <!-- ==================== 2. FRONTEND ==================== -->
+  <g transform="translate(285, 140)" filter="url(#card-shadow)">
+    <rect width="245" height="310" rx="14" fill="#ffffff" stroke="#60a5fa" stroke-width="2" />
+    <path d="M 0 14 Q 0 0 14 0 L 231 0 Q 245 0 245 14 L 245 42 L 0 42 Z" fill="#dbeafe" />
+    <text x="122" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#1e40af">Frontend</text>
+    <text x="122" y="66" text-anchor="middle" font-size="12" font-weight="600" fill="#2563eb">Camada de Apresentação</text>
+
+    <!-- Badges / Itens -->
+    <rect x="16" y="86" width="213" height="36" rx="6" fill="#eff6ff" stroke="#bfdbfe" />
+    <text x="122" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a8a">HTML5 · CSS3 · Vanilla JS</text>
+    <text x="122" y="115" text-anchor="middle" font-size="10" fill="#3b82f6">Módulos nativos ES6 (sem build)</text>
+
+    <rect x="16" y="130" width="213" height="48" rx="6" fill="#eff6ff" stroke="#bfdbfe" />
+    <text x="122" y="148" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a8a">Interface Web SPA (6 Telas)</text>
+    <text x="122" y="162" text-anchor="middle" font-size="10" fill="#475569">Catálogo, Perfil, Detalhes, Simulação</text>
+    <text x="122" y="173" text-anchor="middle" font-size="10" fill="#475569">Histórico e Autenticação</text>
+
+    <rect x="16" y="186" width="213" height="44" rx="6" fill="#eff6ff" stroke="#bfdbfe" />
+    <text x="122" y="204" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a8a">Fetch API Assíncrona</text>
+    <text x="122" y="219" text-anchor="middle" font-size="10" fill="#475569">sessionStorage (Bearer Token 8h)</text>
+
+    <rect x="16" y="238" width="213" height="56" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="122" y="256" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">Execução</text>
+    <text x="122" y="271" text-anchor="middle" font-size="10" fill="#64748b">Servidor Uvicorn integrado (Web)</text>
+    <text x="122" y="284" text-anchor="middle" font-size="9" fill="#94a3b8">ou local via Node.js (servir.mjs)</text>
+  </g>
+
+  <!-- SETA 2: FRONTEND -> BACKEND -->
+  <line x1="532" y1="275" x2="578" y2="275" stroke="#059669" stroke-width="2.5" marker-end="url(#arrow-green)" />
+  <line x1="578" y1="295" x2="534" y2="295" stroke="#059669" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrow-green)" />
+  <rect x="532" y="228" width="46" height="38" rx="4" fill="#d1fae5" />
+  <text x="555" y="242" text-anchor="middle" font-size="9" font-weight="700" fill="#065f46">HTTP</text>
+  <text x="555" y="253" text-anchor="middle" font-size="9" font-weight="700" fill="#065f46">REST</text>
+  <text x="555" y="263" text-anchor="middle" font-size="8" fill="#047857">JSON</text>
+
+  <!-- ==================== 3. BACKEND ==================== -->
+  <g transform="translate(585, 140)" filter="url(#card-shadow)">
+    <rect width="235" height="310" rx="14" fill="#ffffff" stroke="#34d399" stroke-width="2" />
+    <path d="M 0 14 Q 0 0 14 0 L 221 0 Q 235 0 235 14 L 235 42 L 0 42 Z" fill="#d1fae5" />
+    <text x="117" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#065f46">Backend</text>
+    <text x="117" y="66" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">Apresentação, Aplicação e Domínio</text>
+
+    <!-- Badges / Itens -->
+    <rect x="14" y="86" width="207" height="36" rx="6" fill="#ecfdf5" stroke="#a7f3d0" />
+    <text x="117" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#064e3b">Python 3.12+ · FastAPI · Uvicorn</text>
+    <text x="117" y="115" text-anchor="middle" font-size="10" fill="#047857">Pydantic v2 (validação de schemas)</text>
+
+    <rect x="14" y="130" width="207" height="48" rx="6" fill="#ecfdf5" stroke="#a7f3d0" />
+    <text x="117" y="148" text-anchor="middle" font-size="11" font-weight="600" fill="#064e3b">Camada de Aplicação (services.py)</text>
+    <text x="117" y="162" text-anchor="middle" font-size="10" fill="#334155">Casos de Uso: UC01 (Simulador)</text>
+    <text x="117" y="173" text-anchor="middle" font-size="10" fill="#334155">UC02 (Filtros), Autenticação e Perfis</text>
+
+    <rect x="14" y="186" width="207" height="44" rx="6" fill="#ecfdf5" stroke="#a7f3d0" />
+    <text x="117" y="204" text-anchor="middle" font-size="11" font-weight="600" fill="#064e3b">Camada de Domínio Puro (domain.py)</text>
+    <text x="117" y="219" text-anchor="middle" font-size="10" fill="#334155">Regras: I3, Idioma, Créditos, Pesos 80/20</text>
+
+    <rect x="14" y="238" width="207" height="56" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="117" y="256" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">Segurança (security.py)</text>
+    <text x="117" y="271" text-anchor="middle" font-size="10" fill="#64748b">Tokens Bearer, Hash SHA-256</text>
+    <text x="117" y="284" text-anchor="middle" font-size="9" fill="#94a3b8">CORS habilitado para origem web</text>
+  </g>
+
+  <!-- SETA 3: BACKEND -> BANCO DE DADOS -->
+  <line x1="822" y1="285" x2="928" y2="285" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrow-purple)" />
+  <rect x="838" y="246" width="76" height="34" rx="4" fill="#ede9fe" />
+  <text x="876" y="260" text-anchor="middle" font-size="9" font-weight="700" fill="#5b21b6">Psycopg</text>
+  <text x="876" y="272" text-anchor="middle" font-size="8" fill="#6d28d9">SQL Parametrizado</text>
+
+  <!-- ==================== 4. BANCO DE DADOS ==================== -->
+  <g transform="translate(935, 140)" filter="url(#card-shadow)">
+    <rect width="240" height="310" rx="14" fill="#ffffff" stroke="#c084fc" stroke-width="2" />
+    <path d="M 0 14 Q 0 0 14 0 L 226 0 Q 240 0 240 14 L 240 42 L 0 42 Z" fill="#ede9fe" />
+    <!-- Ícone de cilindro de banco -->
+    <ellipse cx="40" cy="21" rx="12" ry="5" fill="#8b5cf6" />
+    <path d="M 28 21 L 28 27 Q 40 32 52 27 L 52 21 Z" fill="#7c3aed" />
+    <text x="135" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#5b21b6">Banco de Dados</text>
+    <text x="120" y="66" text-anchor="middle" font-size="12" font-weight="600" fill="#7c3aed">Camada de Persistência</text>
+
+    <!-- Badges / Itens -->
+    <rect x="14" y="86" width="212" height="42" rx="6" fill="#faf5ff" stroke="#ddd6fe" />
+    <text x="120" y="104" text-anchor="middle" font-size="11" font-weight="600" fill="#4c1d95">PostgreSQL 18 (Nuvem Neon)</text>
+    <text x="120" y="119" text-anchor="middle" font-size="10" fill="#6d28d9">Produção serverless · Região Virginia</text>
+
+    <rect x="14" y="136" width="212" height="42" rx="6" fill="#faf5ff" stroke="#ddd6fe" />
+    <text x="120" y="154" text-anchor="middle" font-size="11" font-weight="600" fill="#4c1d95">SQLite3 (Desenvolvimento Local)</text>
+    <text x="120" y="169" text-anchor="middle" font-size="10" fill="#6d28d9">Arquivo local em data/radar.sqlite3</text>
+
+    <rect x="14" y="186" width="212" height="48" rx="6" fill="#faf5ff" stroke="#ddd6fe" />
+    <text x="120" y="204" text-anchor="middle" font-size="11" font-weight="600" fill="#4c1d95">Snapshots de Simulação</text>
+    <text x="120" y="218" text-anchor="middle" font-size="10" fill="#334155">Histórico imutável de avaliações</text>
+    <text x="120" y="228" text-anchor="middle" font-size="9" fill="#64748b">Tabelas estruturadas + JSON</text>
+
+    <rect x="14" y="242" width="212" height="52" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="120" y="260" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">Módulo repository.py</text>
+    <text x="120" y="274" text-anchor="middle" font-size="10" fill="#64748b">SQL puro sem ORM pesado</text>
+    <text x="120" y="286" text-anchor="middle" font-size="9" fill="#94a3b8">Integridade relacional com Foreign Keys</text>
+  </g>
+
+</svg>
